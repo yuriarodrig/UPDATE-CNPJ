@@ -31,7 +31,7 @@ def Consult_CNPJ(cnpj):
         elif simples == None and simples_nao == None:
             simples = 'Não'
             
-        return {'CNPJ':cnpj_id, 'Simples':simples}
+        return {'CNPJ':cnpj_id, 'SIMPLES_NACIONAL':simples}
     
     except:
         print(f'Erro no cnpj {cnpj}')
@@ -42,5 +42,25 @@ def Consult_BD():
     df = df[df['CNPJ'].str.len() == 14]
     cnpj_list = df['CNPJ'].drop_duplicates().tolist()
     
+    result_list = []
+    for cnpj in cnpj_list:
+        result = Consult_CNPJ(cnpj)
+        
+        if result:
+            result_list.append(result)
+            print(result)
     
+    df_result = pd.DataFrame(result_list)
+    df_result_filtered = df_result.dropna(subset=['SIMPLES_NACIONAL'])
+    df_result_filtered = df_result_filtered[df_result_filtered['SIMPLES_NACIONAL'].isin(['Sim', 'Não'])]
+    print(df_result_filtered)
+    
+    for _, row in df_result_filtered.iterrows():
+        cnpj = row['CNPJ']
+        simples = row['SIMPLES_NACIONAL']
+        query = f"UPDATE TABELA SET CAMPO_PREENCHER = '{simples}' WHERE CAMPO_CNPJ = '{cnpj}'"
+        cursor.execute(query)
+        conn.commit()
+Consult_BD()
+conn.close()
     
