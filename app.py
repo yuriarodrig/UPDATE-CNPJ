@@ -35,3 +35,12 @@ def Consult_CNPJ(cnpj):
     
     except:
         print(f'Erro no cnpj {cnpj}')
+        
+def Consult_BD():
+    df = pd.read_sql("SELECT CNPJ FROM TABELA_CNPJ WHERE D_E_L_E_T_='' AND TABELA_MSBLQL= '2' ", con=conn)
+    df['CNPJ'] = df['CNPJ'].str.strip()
+    df = df[df['CNPJ'].str.len() == 14]
+    cnpj_list = df['CNPJ'].drop_duplicates().tolist()
+    
+    
+    
